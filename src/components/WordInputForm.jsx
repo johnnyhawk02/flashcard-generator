@@ -28,6 +28,14 @@ const WordInputForm = ({ onWordsChange }) => {
         const updatedEntries = [...wordEntries];
         updatedEntries[index].image = file;
         updatedEntries[index].imageUrl = e.target.result;
+        
+        // If word field is empty, populate it with filename (minus extension)
+        if (!updatedEntries[index].word.trim()) {
+          const filename = file.name;
+          const nameWithoutExtension = filename.replace(/\.[^/.]+$/, '');
+          updatedEntries[index].word = nameWithoutExtension;
+        }
+        
         setWordEntries(updatedEntries);
       };
       reader.readAsDataURL(file);
