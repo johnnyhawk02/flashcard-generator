@@ -11,6 +11,7 @@ const WordInputForm = ({ onWordsChange }) => {
     { word: '', image: null, imageUrl: '' },
     { word: '', image: null, imageUrl: '' }
   ]);
+  const [fontSize, setFontSize] = useState(58); // Default font size for A4 cards
   const [error, setError] = useState('');
 
   const handleWordChange = (index, value) => {
@@ -57,8 +58,8 @@ const WordInputForm = ({ onWordsChange }) => {
       return;
     }
 
-    // Update parent component with valid entries
-    onWordsChange(validEntries);
+    // Update parent component with valid entries and font size
+    onWordsChange(validEntries, fontSize);
   };
 
   const addEntry = () => {
@@ -150,10 +151,29 @@ const WordInputForm = ({ onWordsChange }) => {
         Generate Preview
       </button>
       
+      <div className="mt-4 mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Font Size: {fontSize}px
+        </label>
+        <input
+          type="range"
+          min="20"
+          max="100"
+          value={fontSize}
+          onChange={(e) => setFontSize(parseInt(e.target.value))}
+          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+        />
+        <div className="flex justify-between text-xs text-gray-500 mt-1">
+          <span>20px</span>
+          <span>100px</span>
+        </div>
+      </div>
+      
       <div className="mt-4 text-sm text-gray-600">
         <p>• Enter any words you want on your flashcards</p>
         <p>• Upload images for each word (PNG, JPG, GIF supported)</p>
         <p>• Images will be automatically resized to fit the cards</p>
+        <p>• Adjust font size to fit your content perfectly</p>
       </div>
     </div>
   );

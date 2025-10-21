@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import html2canvas from 'html2canvas';
 
-const A4Canvas = ({ wordEntries }) => {
+const A4Canvas = ({ wordEntries, fontSize }) => {
   const wordsCanvasRef = useRef(null);
   const picturesCanvasRef = useRef(null);
 
@@ -107,7 +107,7 @@ const A4Canvas = ({ wordEntries }) => {
           style={{ 
             fontFamily: "'Lexend', sans-serif",
             fontWeight: '300',
-            fontSize: '58px',
+            fontSize: `${fontSize}px`,
             color: '#000',
             textAlign: 'center'
           }}

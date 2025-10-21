@@ -6,9 +6,11 @@ import './App.css';
 
 function App() {
   const [wordEntries, setWordEntries] = useState([]);
+  const [fontSize, setFontSize] = useState(58);
 
-  const handleWordsChange = (newWordEntries) => {
+  const handleWordsChange = (newWordEntries, newFontSize) => {
     setWordEntries(newWordEntries);
+    setFontSize(newFontSize);
   };
 
   return (
@@ -28,8 +30,8 @@ function App() {
           
           {wordEntries.length > 0 && (
             <>
-              <CardPreview wordEntries={wordEntries} />
-              <A4Canvas wordEntries={wordEntries} />
+              <CardPreview wordEntries={wordEntries} fontSize={fontSize} />
+              <A4Canvas wordEntries={wordEntries} fontSize={fontSize} />
             </>
           )}
         </main>

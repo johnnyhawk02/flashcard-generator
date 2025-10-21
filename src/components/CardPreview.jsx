@@ -1,4 +1,4 @@
-const CardPreview = ({ wordEntries }) => {
+const CardPreview = ({ wordEntries, fontSize }) => {
   const renderCard = (entry, index) => {
     if (!entry || !entry.word) {
       return (
@@ -10,7 +10,7 @@ const CardPreview = ({ wordEntries }) => {
 
     return (
       <div key={index} className="w-[295px] h-[205px] border border-dashed border-black bg-white flex items-center justify-center">
-        <span className="font-lexend font-light text-3xl text-center">{entry.word}</span>
+        <span className="font-lexend font-light text-center" style={{ fontSize: `${fontSize * 0.5}px` }}>{entry.word}</span>
       </div>
     );
   };
