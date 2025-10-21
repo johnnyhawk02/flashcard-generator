@@ -62,11 +62,20 @@ const A4Canvas = ({ words }) => {
   };
 
   const renderA4Card = (word, index) => {
+    // Calculate position: 2 columns, 4 rows
+    const col = index % 2;
+    const row = Math.floor(index / 2);
+    const x = 30 + col * (590 + 30); // 30px padding + column offset
+    const y = 30 + row * (410 + 30); // 30px padding + row offset
+
     if (!word) {
       return (
         <div 
           key={index} 
           style={{
+            position: 'absolute',
+            left: `${x}px`,
+            top: `${y}px`,
             width: '590px',
             height: '410px',
             border: '1px dashed #ccc',
@@ -85,6 +94,9 @@ const A4Canvas = ({ words }) => {
       <div 
         key={index} 
         style={{
+          position: 'absolute',
+          left: `${x}px`,
+          top: `${y}px`,
           width: '590px',
           height: '410px',
           border: '1px dashed #000',
@@ -110,11 +122,20 @@ const A4Canvas = ({ words }) => {
   };
 
   const renderA4ImageCard = (word, index) => {
+    // Calculate position: 2 columns, 4 rows
+    const col = index % 2;
+    const row = Math.floor(index / 2);
+    const x = 30 + col * (590 + 30); // 30px padding + column offset
+    const y = 30 + row * (410 + 30); // 30px padding + row offset
+
     if (!word) {
       return (
         <div 
           key={index} 
           style={{
+            position: 'absolute',
+            left: `${x}px`,
+            top: `${y}px`,
             width: '590px',
             height: '410px',
             border: '1px dashed #ccc',
@@ -133,6 +154,9 @@ const A4Canvas = ({ words }) => {
       <div 
         key={index} 
         style={{
+          position: 'absolute',
+          left: `${x}px`,
+          top: `${y}px`,
           width: '590px',
           height: '410px',
           border: '1px dashed #000',
@@ -161,6 +185,9 @@ const A4Canvas = ({ words }) => {
 
   // Ensure we have exactly 8 slots (pad with empty slots if needed)
   const paddedWords = [...words, ...Array(8 - words.length).fill(null)];
+  
+  console.log('Padded words for A4 canvas:', paddedWords);
+  console.log('Number of cards to render:', paddedWords.length);
 
   return (
     <div className="mb-6">
@@ -189,17 +216,14 @@ const A4Canvas = ({ words }) => {
         {/* Words A4 Canvas */}
         <div
           ref={wordsCanvasRef}
-          className="bg-white"
           style={{
             width: '1240px',
             height: '1754px',
-            display: 'grid',
-            gridTemplate: 'repeat(4, 410px) / repeat(2, 590px)',
-            gap: '30px',
-            padding: '30px',
+            backgroundColor: '#ffffff',
             fontFamily: "'Lexend', sans-serif",
             fontWeight: '300',
-            position: 'relative'
+            position: 'relative',
+            boxSizing: 'border-box'
           }}
         >
           {paddedWords.map((word, index) => renderA4Card(word, index))}
@@ -208,15 +232,12 @@ const A4Canvas = ({ words }) => {
         {/* Pictures A4 Canvas */}
         <div
           ref={picturesCanvasRef}
-          className="bg-white"
           style={{
             width: '1240px',
             height: '1754px',
-            display: 'grid',
-            gridTemplate: 'repeat(4, 410px) / repeat(2, 590px)',
-            gap: '30px',
-            padding: '30px',
-            position: 'relative'
+            backgroundColor: '#ffffff',
+            position: 'relative',
+            boxSizing: 'border-box'
           }}
         >
           {paddedWords.map((word, index) => renderA4ImageCard(word, index))}
