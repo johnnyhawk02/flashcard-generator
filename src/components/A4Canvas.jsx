@@ -65,8 +65,10 @@ const A4Canvas = ({ words }) => {
     // Calculate position: 2 columns, 4 rows
     const col = index % 2;
     const row = Math.floor(index / 2);
-    const x = 30 + col * (590 + 30); // 30px padding + column offset
-    const y = 30 + row * (410 + 30); // 30px padding + row offset
+    const cardWidth = 575; // Adjusted to fit A4: (1240 - 2*30 - 30) / 2
+    const cardHeight = 401; // Adjusted to fit A4: (1754 - 2*30 - 3*30) / 4
+    const x = 30 + col * (cardWidth + 30); // 30px padding + column offset
+    const y = 30 + row * (cardHeight + 30); // 30px padding + row offset
 
     if (!word) {
       return (
@@ -76,8 +78,8 @@ const A4Canvas = ({ words }) => {
             position: 'absolute',
             left: `${x}px`,
             top: `${y}px`,
-            width: '590px',
-            height: '410px',
+            width: `${cardWidth}px`,
+            height: `${cardHeight}px`,
             border: '1px dashed #ccc',
             backgroundColor: '#f9f9f9',
             display: 'flex',
@@ -110,7 +112,7 @@ const A4Canvas = ({ words }) => {
           style={{ 
             fontFamily: "'Lexend', sans-serif",
             fontWeight: '300',
-            fontSize: '60px',
+            fontSize: '58px',
             color: '#000',
             textAlign: 'center'
           }}
@@ -125,8 +127,10 @@ const A4Canvas = ({ words }) => {
     // Calculate position: 2 columns, 4 rows
     const col = index % 2;
     const row = Math.floor(index / 2);
-    const x = 30 + col * (590 + 30); // 30px padding + column offset
-    const y = 30 + row * (410 + 30); // 30px padding + row offset
+    const cardWidth = 575; // Adjusted to fit A4: (1240 - 2*30 - 30) / 2
+    const cardHeight = 401; // Adjusted to fit A4: (1754 - 2*30 - 3*30) / 4
+    const x = 30 + col * (cardWidth + 30); // 30px padding + column offset
+    const y = 30 + row * (cardHeight + 30); // 30px padding + row offset
 
     if (!word) {
       return (
@@ -136,8 +140,8 @@ const A4Canvas = ({ words }) => {
             position: 'absolute',
             left: `${x}px`,
             top: `${y}px`,
-            width: '590px',
-            height: '410px',
+            width: `${cardWidth}px`,
+            height: `${cardHeight}px`,
             border: '1px dashed #ccc',
             backgroundColor: '#f9f9f9',
             display: 'flex',
@@ -171,8 +175,8 @@ const A4Canvas = ({ words }) => {
           src={getImagePath(word)}
           alt={word}
           style={{ 
-            maxWidth: '470px', 
-            maxHeight: '330px',
+            maxWidth: '495px', 
+            maxHeight: '321px',
             objectFit: 'contain'
           }}
           onError={(e) => {
