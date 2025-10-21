@@ -25,12 +25,12 @@ const CardPreview = ({ wordEntries }) => {
     }
 
     return (
-      <div key={index} className="w-[295px] h-[205px] border border-dashed border-black bg-white flex items-center justify-center p-4">
+      <div key={index} className="w-[295px] h-[205px] border border-dashed border-black bg-white flex items-center justify-center">
         {entry.imageUrl ? (
           <img
             src={entry.imageUrl}
             alt={entry.word}
-            className="max-w-full max-h-full object-contain"
+            className="w-full h-full object-cover"
           />
         ) : (
           <div className="text-center text-gray-500">

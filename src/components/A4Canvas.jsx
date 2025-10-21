@@ -162,8 +162,7 @@ const A4Canvas = ({ wordEntries }) => {
           backgroundColor: '#fff',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          padding: '40px'
+          justifyContent: 'center'
         }}
       >
         {entry.imageUrl ? (
@@ -171,9 +170,9 @@ const A4Canvas = ({ wordEntries }) => {
             src={entry.imageUrl}
             alt={entry.word}
             style={{ 
-              maxWidth: '495px', 
-              maxHeight: '321px',
-              objectFit: 'contain'
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
             }}
           />
         ) : (
