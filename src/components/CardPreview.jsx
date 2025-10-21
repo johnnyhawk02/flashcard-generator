@@ -30,7 +30,7 @@ const CardPreview = ({ wordEntries }) => {
           <img
             src={entry.imageUrl}
             alt={entry.word}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
           />
         ) : (
           <div className="text-center text-gray-500">
