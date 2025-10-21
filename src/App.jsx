@@ -5,10 +5,10 @@ import A4Canvas from './components/A4Canvas';
 import './App.css';
 
 function App() {
-  const [words, setWords] = useState([]);
+  const [wordEntries, setWordEntries] = useState([]);
 
-  const handleWordsChange = (newWords) => {
-    setWords(newWords);
+  const handleWordsChange = (newWordEntries) => {
+    setWordEntries(newWordEntries);
   };
 
   return (
@@ -26,10 +26,10 @@ function App() {
         <main className="space-y-8">
           <WordInputForm onWordsChange={handleWordsChange} />
           
-          {words.length > 0 && (
+          {wordEntries.length > 0 && (
             <>
-              <CardPreview words={words} />
-              <A4Canvas words={words} />
+              <CardPreview wordEntries={wordEntries} />
+              <A4Canvas wordEntries={wordEntries} />
             </>
           )}
         </main>
