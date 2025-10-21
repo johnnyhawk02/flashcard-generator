@@ -166,14 +166,14 @@ const A4Canvas = ({ wordEntries }) => {
         }}
       >
         {entry.imageUrl ? (
-          <img
-            src={entry.imageUrl}
-            alt={entry.word}
-            style={{ 
+          <div
+            style={{
               width: '100%',
               height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center'
+              backgroundImage: `url(${entry.imageUrl})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
             }}
           />
         ) : (
