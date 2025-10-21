@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for A4 layout */
+.a4-canvas {
+  width: 1240px;
+  height: 1754px;
+  display: grid;
+  grid-template: repeat(4, 410px) / repeat(2, 590px);
+  gap: 30px;
+  padding: 30px;
+  background-color: white;
+}
+
+.a4-card {
+  width: 590px;
+  height: 410px;
+  border: 1px dashed black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+}
+
+.a4-word-card {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 300;
+  font-size: 60px;
+}
+
+.a4-image-card img {
+  max-width: 470px;
+  max-height: 330px;
+  object-fit: contain;
+}
