@@ -36,7 +36,11 @@ const A4Canvas = ({ wordEntries, fontSize }) => {
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        removeContainer: true
+        removeContainer: true,
+        foreignObjectRendering: false,
+        ignoreElements: (element) => {
+          return element.tagName === 'SCRIPT' || element.tagName === 'STYLE';
+        }
       });
 
       console.log('html2canvas completed, canvas size:', canvas.width, 'x', canvas.height);
@@ -100,20 +104,33 @@ const A4Canvas = ({ wordEntries, fontSize }) => {
           backgroundColor: '#fff',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          flexDirection: 'column'
         }}
       >
-        <span 
-          style={{ 
-            fontFamily: "'Lexend', sans-serif",
-            fontWeight: '300',
-            fontSize: `${fontSize}px`,
-            color: '#000',
-            textAlign: 'center'
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            width: '100%'
           }}
         >
-          {entry.word}
-        </span>
+          <span 
+            style={{ 
+              fontFamily: "'Lexend', sans-serif",
+              fontWeight: '300',
+              fontSize: `${fontSize}px`,
+              color: '#000',
+              textAlign: 'center',
+              lineHeight: '1',
+              display: 'block'
+            }}
+          >
+            {entry.word}
+          </span>
+        </div>
       </div>
     );
   };
