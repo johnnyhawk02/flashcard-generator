@@ -101,36 +101,28 @@ const A4Canvas = ({ wordEntries, fontSize }) => {
           width: `${cardWidth}px`,
           height: `${cardHeight}px`,
           border: '1px dashed #000',
-          backgroundColor: '#fff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column'
+          backgroundColor: '#fff'
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-            width: '100%'
+        <span 
+          style={{ 
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            fontFamily: "'Lexend', sans-serif",
+            fontWeight: '300',
+            fontSize: `${fontSize}px`,
+            color: '#000',
+            textAlign: 'center',
+            lineHeight: '1',
+            whiteSpace: 'nowrap',
+            maxWidth: '100%',
+            overflow: 'hidden'
           }}
         >
-          <span 
-            style={{ 
-              fontFamily: "'Lexend', sans-serif",
-              fontWeight: '300',
-              fontSize: `${fontSize}px`,
-              color: '#000',
-              textAlign: 'center',
-              lineHeight: '1',
-              display: 'block'
-            }}
-          >
-            {entry.word}
-          </span>
-        </div>
+          {entry.word}
+        </span>
       </div>
     );
   };
