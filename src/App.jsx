@@ -6,11 +6,13 @@ import './App.css';
 
 function App() {
   const [wordEntries, setWordEntries] = useState([]);
-  const [fontSize, setFontSize] = useState(58);
+  const [fontSize, setFontSize] = useState(70);
+  const [dpi, setDpi] = useState(300);
 
-  const handleWordsChange = (newWordEntries, newFontSize) => {
+  const handleWordsChange = (newWordEntries, newFontSize, newDpi) => {
     setWordEntries(newWordEntries);
-    setFontSize(newFontSize);
+    if (newFontSize !== undefined) setFontSize(newFontSize);
+    if (newDpi !== undefined) setDpi(newDpi);
   };
 
   return (
@@ -31,7 +33,7 @@ function App() {
           {wordEntries.length > 0 && (
             <>
               <CardPreview wordEntries={wordEntries} fontSize={fontSize} />
-              <A4Canvas wordEntries={wordEntries} fontSize={fontSize} />
+              <A4Canvas wordEntries={wordEntries} fontSize={fontSize} dpi={dpi} />
             </>
           )}
         </main>

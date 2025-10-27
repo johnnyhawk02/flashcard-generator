@@ -1,205 +1,187 @@
-import { useRef } from 'react';
-import html2canvas from 'html2canvas';
+import { useRef, useEffect } from 'react';
 
-const A4Canvas = ({ wordEntries, fontSize }) => {
+const A4Canvas = ({ wordEntries, fontSize, dpi = 300 }) => {
   const wordsCanvasRef = useRef(null);
   const picturesCanvasRef = useRef(null);
 
-  const downloadPNG = async (canvasRef, filename) => {
-    if (!canvasRef.current) return;
-
-    console.log(`Starting PNG generation for ${filename}`);
-    console.log('Canvas element:', canvasRef.current);
-    console.log('Words to render:', wordEntries);
-
-    try {
-      // Temporarily make the canvas visible for rendering
-      const originalStyle = canvasRef.current.style.cssText;
-      canvasRef.current.style.cssText = `
-        position: absolute;
-        top: -10000px;
-        left: -10000px;
-        visibility: visible;
-        opacity: 1;
-        z-index: 9999;
-      `;
-
-      // Wait a moment for the element to be rendered
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      console.log('About to call html2canvas...');
-      const canvas = await html2canvas(canvasRef.current, {
-        scale: 1,
+  // Calculate dimensions based on DPI
+  const getDimensions = () => {
+    const currentDpi = dpi;
+    if (currentDpi === 300) {
+      return {
+        width: 2480,
+        height: 3508,
+        cardWidth: 1150,
+        cardHeight: 802,
+        fontSize: fontSize * 2,
+        margin: 30,
+        gap: 30
+      };
+    } else {
+      return {
         width: 1240,
         height: 1754,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        removeContainer: true,
-        foreignObjectRendering: false,
-        ignoreElements: (element) => {
-          return element.tagName === 'SCRIPT' || element.tagName === 'STYLE';
+        cardWidth: 575,
+        cardHeight: 401,
+        fontSize: fontSize,
+        margin: 30,
+        gap: 30
+      };
+    }
+  };
+
+  // Draw word cards on canvas
+  const drawWordCards = async () => {
+    const canvas = wordsCanvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const dimensions = getDimensions();
+    
+    // Set canvas size
+    canvas.width = dimensions.width;
+    canvas.height = dimensions.height;
+
+    // Fill white background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, dimensions.width, dimensions.height);
+
+    // Load font
+    await document.fonts.load(`300 ${dimensions.fontSize}px Lexend`);
+    
+    // Pad entries to 8
+    const paddedEntries = [...wordEntries, ...Array(8 - wordEntries.length).fill(null)];
+
+    // Draw 8 cards (2 columns x 4 rows)
+    for (let i = 0; i < 8; i++) {
+      const col = i % 2;
+      const row = Math.floor(i / 2);
+      const x = dimensions.margin + col * (dimensions.cardWidth + dimensions.gap);
+      const y = dimensions.margin + row * (dimensions.cardHeight + dimensions.gap);
+
+      // Draw dashed border
+      ctx.strokeStyle = '#000000';
+      ctx.setLineDash([10, 5]);
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, dimensions.cardWidth, dimensions.cardHeight);
+      ctx.setLineDash([]);
+
+      // Draw word if exists
+      if (paddedEntries[i] && paddedEntries[i].word) {
+        ctx.fillStyle = '#000000';
+        ctx.font = `300 ${dimensions.fontSize}px Lexend`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle'; // This centers text vertically!
+        
+        const textX = x + dimensions.cardWidth / 2;
+        const textY = y + dimensions.cardHeight / 2;
+        
+        ctx.fillText(paddedEntries[i].word, textX, textY);
+      }
+    }
+  };
+
+  // Draw picture cards on canvas
+  const drawPictureCards = async () => {
+    const canvas = picturesCanvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const dimensions = getDimensions();
+    
+    // Set canvas size
+    canvas.width = dimensions.width;
+    canvas.height = dimensions.height;
+
+    // Fill white background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, dimensions.width, dimensions.height);
+
+    // Pad entries to 8
+    const paddedEntries = [...wordEntries, ...Array(8 - wordEntries.length).fill(null)];
+
+    // Draw 8 cards (2 columns x 4 rows)
+    for (let i = 0; i < 8; i++) {
+      const col = i % 2;
+      const row = Math.floor(i / 2);
+      const x = dimensions.margin + col * (dimensions.cardWidth + dimensions.gap);
+      const y = dimensions.margin + row * (dimensions.cardHeight + dimensions.gap);
+
+      // Draw dashed border
+      ctx.strokeStyle = '#000000';
+      ctx.setLineDash([10, 5]);
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, dimensions.cardWidth, dimensions.cardHeight);
+      ctx.setLineDash([]);
+
+      // Draw image if exists
+      if (paddedEntries[i] && paddedEntries[i].imageUrl) {
+        try {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          
+          await new Promise((resolve, reject) => {
+            img.onload = () => {
+              // Calculate dimensions to fill width and crop top/bottom
+              const cardAspect = dimensions.cardWidth / dimensions.cardHeight;
+              const imgAspect = img.width / img.height;
+              
+              let drawWidth, drawHeight, drawX, drawY;
+              
+              if (imgAspect > cardAspect) {
+                // Image is wider than card - fit height, crop sides
+                drawHeight = dimensions.cardHeight;
+                drawWidth = drawHeight * imgAspect;
+                drawX = x - (drawWidth - dimensions.cardWidth) / 2;
+                drawY = y;
+              } else {
+                // Image is taller than card - fit width, crop top/bottom
+                drawWidth = dimensions.cardWidth;
+                drawHeight = drawWidth / imgAspect;
+                drawX = x;
+                drawY = y - (drawHeight - dimensions.cardHeight) / 2;
+              }
+              
+              // Clip to card boundaries
+              ctx.save();
+              ctx.beginPath();
+              ctx.rect(x, y, dimensions.cardWidth, dimensions.cardHeight);
+              ctx.clip();
+              
+              ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+              ctx.restore();
+              
+              resolve();
+            };
+            img.onerror = reject;
+            img.src = paddedEntries[i].imageUrl;
+          });
+        } catch (error) {
+          console.error('Error loading image:', error);
         }
-      });
+      }
+    }
+  };
 
-      console.log('html2canvas completed, canvas size:', canvas.width, 'x', canvas.height);
+  // Redraw canvases when inputs change
+  useEffect(() => {
+    drawWordCards();
+    drawPictureCards();
+  }, [wordEntries, fontSize, dpi]);
 
-      // Restore original style
-      canvasRef.current.style.cssText = originalStyle;
+  const downloadPNG = (canvasRef, filename) => {
+    if (!canvasRef.current) return;
 
+    try {
       const link = document.createElement('a');
       link.download = filename;
-      link.href = canvas.toDataURL('image/png');
+      link.href = canvasRef.current.toDataURL('image/png');
       link.click();
-      
-      console.log(`PNG download initiated for ${filename}`);
     } catch (error) {
-      console.error('Error generating PNG:', error);
-      alert('Error generating PNG. Please try again.');
+      console.error('Error downloading PNG:', error);
+      alert('Error downloading PNG. Please try again.');
     }
   };
-
-  const renderA4Card = (entry, index) => {
-    // Calculate position: 2 columns, 4 rows
-    const col = index % 2;
-    const row = Math.floor(index / 2);
-    const cardWidth = 575; // Adjusted to fit A4: (1240 - 2*30 - 30) / 2
-    const cardHeight = 401; // Adjusted to fit A4: (1754 - 2*30 - 3*30) / 4
-    const x = 30 + col * (cardWidth + 30); // 30px padding + column offset
-    const y = 30 + row * (cardHeight + 30); // 30px padding + row offset
-
-    if (!entry || !entry.word) {
-      return (
-        <div 
-          key={index} 
-          style={{
-            position: 'absolute',
-            left: `${x}px`,
-            top: `${y}px`,
-            width: `${cardWidth}px`,
-            height: `${cardHeight}px`,
-            border: '1px dashed #ccc',
-            backgroundColor: '#f9f9f9',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          <span style={{ color: '#999', fontSize: '14px' }}>Empty</span>
-        </div>
-      );
-    }
-
-    return (
-      <div 
-        key={index} 
-        style={{
-          position: 'absolute',
-          left: `${x}px`,
-          top: `${y}px`,
-          width: `${cardWidth}px`,
-          height: `${cardHeight}px`,
-          border: '1px dashed #000',
-          backgroundColor: '#fff'
-        }}
-      >
-        <span 
-          style={{ 
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            fontFamily: "'Lexend', sans-serif",
-            fontWeight: '300',
-            fontSize: `${fontSize}px`,
-            color: '#000',
-            textAlign: 'center',
-            lineHeight: '1',
-            whiteSpace: 'nowrap',
-            maxWidth: '100%',
-            overflow: 'hidden'
-          }}
-        >
-          {entry.word}
-        </span>
-      </div>
-    );
-  };
-
-  const renderA4ImageCard = (entry, index) => {
-    // Calculate position: 2 columns, 4 rows
-    const col = index % 2;
-    const row = Math.floor(index / 2);
-    const cardWidth = 575; // Adjusted to fit A4: (1240 - 2*30 - 30) / 2
-    const cardHeight = 401; // Adjusted to fit A4: (1754 - 2*30 - 3*30) / 4
-    const x = 30 + col * (cardWidth + 30); // 30px padding + column offset
-    const y = 30 + row * (cardHeight + 30); // 30px padding + row offset
-
-    if (!entry || !entry.word) {
-      return (
-        <div 
-          key={index} 
-          style={{
-            position: 'absolute',
-            left: `${x}px`,
-            top: `${y}px`,
-            width: `${cardWidth}px`,
-            height: `${cardHeight}px`,
-            border: '1px dashed #ccc',
-            backgroundColor: '#f9f9f9',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          <span style={{ color: '#999', fontSize: '14px' }}>Empty</span>
-        </div>
-      );
-    }
-
-    return (
-      <div 
-        key={index} 
-        style={{
-          position: 'absolute',
-          left: `${x}px`,
-          top: `${y}px`,
-          width: `${cardWidth}px`,
-          height: `${cardHeight}px`,
-          border: '1px dashed #000',
-          backgroundColor: '#fff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
-        {entry.imageUrl ? (
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              backgroundImage: `url(${entry.imageUrl})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            }}
-          />
-        ) : (
-          <div style={{ textAlign: 'center', color: '#999' }}>
-            <div style={{ fontSize: '48px', marginBottom: '8px' }}>📷</div>
-            <div style={{ fontSize: '16px' }}>No image</div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  // Ensure we have exactly 8 slots (pad with empty slots if needed)
-  const paddedEntries = [...wordEntries, ...Array(8 - wordEntries.length).fill(null)];
-  
-  console.log('Padded entries for A4 canvas:', paddedEntries);
-  console.log('Number of cards to render:', paddedEntries.length);
 
   return (
     <div className="mb-6">
@@ -223,37 +205,10 @@ const A4Canvas = ({ wordEntries, fontSize }) => {
         </button>
       </div>
 
-      {/* Off-screen A4 canvases for PNG generation */}
-      <div style={{ position: 'absolute', top: '-10000px', left: '-10000px', visibility: 'hidden' }}>
-        {/* Words A4 Canvas */}
-        <div
-          ref={wordsCanvasRef}
-          style={{
-            width: '1240px',
-            height: '1754px',
-            backgroundColor: '#ffffff',
-            fontFamily: "'Lexend', sans-serif",
-            fontWeight: '300',
-            position: 'relative',
-            boxSizing: 'border-box'
-          }}
-        >
-          {paddedEntries.map((entry, index) => renderA4Card(entry, index))}
-        </div>
-
-        {/* Pictures A4 Canvas */}
-        <div
-          ref={picturesCanvasRef}
-          style={{
-            width: '1240px',
-            height: '1754px',
-            backgroundColor: '#ffffff',
-            position: 'relative',
-            boxSizing: 'border-box'
-          }}
-        >
-          {paddedEntries.map((entry, index) => renderA4ImageCard(entry, index))}
-        </div>
+      {/* Hidden canvases for PNG generation */}
+      <div style={{ position: 'absolute', top: '-10000px', left: '-10000px' }}>
+        <canvas ref={wordsCanvasRef} />
+        <canvas ref={picturesCanvasRef} />
       </div>
     </div>
   );

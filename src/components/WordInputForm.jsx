@@ -11,7 +11,8 @@ const WordInputForm = ({ onWordsChange }) => {
     { word: '', image: null, imageUrl: '' },
     { word: '', image: null, imageUrl: '' }
   ]);
-  const [fontSize, setFontSize] = useState(58); // Default font size for A4 cards
+  const [fontSize, setFontSize] = useState(70); // Default font size for A4 cards
+  const [dpi, setDpi] = useState(300); // Default DPI for high quality
   const [error, setError] = useState('');
 
   const handleWordChange = (index, value) => {
@@ -66,8 +67,8 @@ const WordInputForm = ({ onWordsChange }) => {
       return;
     }
 
-    // Update parent component with valid entries and font size
-    onWordsChange(validEntries, fontSize);
+    // Update parent component with valid entries, font size, and DPI
+    onWordsChange(validEntries, fontSize, dpi);
   };
 
   const addEntry = () => {
@@ -174,6 +175,36 @@ const WordInputForm = ({ onWordsChange }) => {
         <div className="flex justify-between text-xs text-gray-500 mt-1">
           <span>20px</span>
           <span>100px</span>
+        </div>
+      </div>
+      
+      <div className="mt-4 mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Export Quality (DPI)
+        </label>
+        <div className="flex gap-4">
+          <label className="flex items-center">
+            <input
+              type="radio"
+              name="dpi"
+              value="150"
+              checked={dpi === 150}
+              onChange={(e) => setDpi(parseInt(e.target.value))}
+              className="mr-2"
+            />
+            <span className="text-sm">150 DPI (Standard)</span>
+          </label>
+          <label className="flex items-center">
+            <input
+              type="radio"
+              name="dpi"
+              value="300"
+              checked={dpi === 300}
+              onChange={(e) => setDpi(parseInt(e.target.value))}
+              className="mr-2"
+            />
+            <span className="text-sm">300 DPI (High Quality)</span>
+          </label>
         </div>
       </div>
       
