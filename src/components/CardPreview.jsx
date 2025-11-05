@@ -1,4 +1,4 @@
-const CardPreview = ({ wordEntries, fontSize }) => {
+const CardPreview = ({ wordEntries, fontSize, fontWeight }) => {
   const renderCard = (entry, index) => {
     if (!entry || !entry.word) {
       return (
@@ -10,7 +10,7 @@ const CardPreview = ({ wordEntries, fontSize }) => {
 
     return (
       <div key={index} className="w-[295px] h-[205px] border border-dashed border-black bg-white flex items-center justify-center">
-        <span className="font-lexend font-light text-center" style={{ fontSize: `${fontSize * 0.5}px` }}>{entry.word}</span>
+        <span className="font-lexend text-center" style={{ fontSize: `${fontSize * 0.5}px`, fontWeight: fontWeight }}>{entry.word}</span>
       </div>
     );
   };
@@ -46,25 +46,40 @@ const CardPreview = ({ wordEntries, fontSize }) => {
   const paddedEntries = [...wordEntries, ...Array(8 - wordEntries.length).fill(null)];
 
   return (
-    <div className="mb-6">
-      <h2 className="text-2xl font-bold mb-4">Card Preview</h2>
+    <div>
+      <div className="mb-6">
+        <h2 className="text-3xl font-bold text-gray-800 mb-2">Card Preview</h2>
+        <p className="text-gray-600">Preview how your flashcards will look when printed</p>
+      </div>
+      
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-2xl">📝</span>
+          <h3 className="text-xl font-semibold text-gray-800">Word Cards</h3>
+        </div>
+        <div className="bg-gray-50 rounded-xl p-4 inline-block">
+          <div className="grid grid-cols-2 gap-4 max-w-[620px]">
+            {paddedEntries.map((entry, index) => renderCard(entry, index))}
+          </div>
+        </div>
+      </div>
       
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Word Cards</h3>
-        <div className="grid grid-cols-2 gap-4 max-w-[620px]">
-          {paddedEntries.map((entry, index) => renderCard(entry, index))}
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-2xl">🖼️</span>
+          <h3 className="text-xl font-semibold text-gray-800">Picture Cards</h3>
+        </div>
+        <div className="bg-gray-50 rounded-xl p-4 inline-block">
+          <div className="grid grid-cols-2 gap-4 max-w-[620px]">
+            {paddedEntries.map((entry, index) => renderImageCard(entry, index))}
+          </div>
         </div>
       </div>
       
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Picture Cards</h3>
-        <div className="grid grid-cols-2 gap-4 max-w-[620px]">
-          {paddedEntries.map((entry, index) => renderImageCard(entry, index))}
-        </div>
-      </div>
-      
-      <div className="mt-4 text-sm text-gray-600">
-        <p>Print on A4, 100% scale, no margins.</p>
+      <div className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-lg">
+        <p className="text-sm text-gray-700 font-medium">
+          💡 <strong>Printing Tip:</strong> Print on A4 paper at 100% scale with no margins for best results.
+        </p>
       </div>
     </div>
   );

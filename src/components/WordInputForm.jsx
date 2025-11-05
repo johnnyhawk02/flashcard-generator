@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const WordInputForm = ({ onWordsChange }) => {
+const WordInputForm = ({ onWordsChange, initialValues }) => {
   const [wordEntries, setWordEntries] = useState([
     { word: '', image: null, imageUrl: '' },
     { word: '', image: null, imageUrl: '' },
@@ -11,9 +11,23 @@ const WordInputForm = ({ onWordsChange }) => {
     { word: '', image: null, imageUrl: '' },
     { word: '', image: null, imageUrl: '' }
   ]);
-  const [fontSize, setFontSize] = useState(70); // Default font size for A4 cards
+  const [fontSize, setFontSize] = useState(80); // Default font size for A4 cards
+  const [fontWeight, setFontWeight] = useState(300); // Default font weight (Light)
   const [dpi, setDpi] = useState(300); // Default DPI for high quality
   const [error, setError] = useState('');
+
+  // Sync with external initialValues (e.g., from batch processing)
+  useEffect(() => {
+    if (initialValues && initialValues.length > 0) {
+      // Pad to 8 entries or trim to 8
+      const paddedEntries = [...initialValues];
+      while (paddedEntries.length < 8) {
+        paddedEntries.push({ word: '', image: null, imageUrl: '' });
+      }
+      const trimmedEntries = paddedEntries.slice(0, 8);
+      setWordEntries(trimmedEntries);
+    }
+  }, [initialValues]);
 
   const handleWordChange = (index, value) => {
     const updatedEntries = [...wordEntries];
@@ -67,8 +81,8 @@ const WordInputForm = ({ onWordsChange }) => {
       return;
     }
 
-    // Update parent component with valid entries, font size, and DPI
-    onWordsChange(validEntries, fontSize, dpi);
+    // Update parent component with valid entries, font size, font weight, and DPI
+    onWordsChange(validEntries, fontSize, fontWeight, dpi);
   };
 
   const addEntry = () => {
@@ -85,39 +99,53 @@ const WordInputForm = ({ onWordsChange }) => {
   };
 
   return (
-    <div className="mb-6">
-      <h2 className="text-2xl font-bold mb-4">Create Your Flashcards (up to 8)</h2>
+    <div>
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold text-gray-800 mb-2">Create Your Flashcards</h2>
+        <p className="text-gray-600">Add up to 8 words with optional images</p>
+      </div>
       
-      <div className="space-y-4 mb-4">
+      <div className="space-y-3 mb-6">
         {wordEntries.map((entry, index) => (
-          <div key={index} className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg">
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Word {index + 1}
-              </label>
-              <input
-                type="text"
-                value={entry.word}
-                onChange={(e) => handleWordChange(index, e.target.value)}
-                placeholder="Enter word..."
-                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+          <div key={index} className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm mt-1">
+              {index + 1}
             </div>
             
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Image {index + 1}
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleImageUpload(index, e.target.files[0])}
-                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Word
+                </label>
+                <input
+                  type="text"
+                  value={entry.word}
+                  onChange={(e) => handleWordChange(index, e.target.value)}
+                  placeholder="Enter word..."
+                  className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Image
+                </label>
+                <label className="block w-full p-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all text-center">
+                  <span className="text-sm text-gray-600">
+                    {entry.imageUrl ? 'Change Image' : 'Click to upload'}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(index, e.target.files[0])}
+                    className="hidden"
+                  />
+                </label>
+              </div>
             </div>
             
             {entry.imageUrl && (
-              <div className="w-16 h-16 border border-gray-300 rounded overflow-hidden">
+              <div className="flex-shrink-0 w-20 h-20 border-2 border-gray-300 rounded-lg overflow-hidden shadow-sm">
                 <img
                   src={entry.imageUrl}
                   alt={`Preview ${index + 1}`}
@@ -129,9 +157,10 @@ const WordInputForm = ({ onWordsChange }) => {
             {wordEntries.length > 1 && (
               <button
                 onClick={() => removeEntry(index)}
-                className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="flex-shrink-0 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm transition-all mt-7"
+                title="Remove this entry"
               >
-                Remove
+                ✕
               </button>
             )}
           </div>
@@ -141,79 +170,106 @@ const WordInputForm = ({ onWordsChange }) => {
       {wordEntries.length < 8 && (
         <button
           onClick={addEntry}
-          className="mb-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+          className="mb-6 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 font-medium transition-all shadow-sm"
         >
-          Add Another Word
+          + Add Another Word
         </button>
       )}
       
       {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
+        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">
+          <div className="flex items-center">
+            <span className="text-xl mr-2">⚠️</span>
+            <span className="font-medium">{error}</span>
+          </div>
         </div>
       )}
       
+      <div className="border-t border-gray-200 pt-6 mb-6">
+        <h3 className="text-xl font-semibold text-gray-800 mb-4">Typography Settings</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-blue-50 rounded-xl p-5">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Font Size: <span className="text-blue-600">{fontSize}px</span>
+            </label>
+            <input
+              type="range"
+              min="20"
+              max="100"
+              value={fontSize}
+              onChange={(e) => setFontSize(parseInt(e.target.value))}
+              className="w-full h-3 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            />
+            <div className="flex justify-between text-xs text-gray-500 mt-2">
+              <span>20px</span>
+              <span>100px</span>
+            </div>
+          </div>
+          
+          <div className="bg-purple-50 rounded-xl p-5">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Font Weight: <span className="text-purple-600">{fontWeight} ({fontWeight <= 300 ? 'Light' : fontWeight <= 400 ? 'Normal' : fontWeight <= 600 ? 'Medium' : 'Bold'})</span>
+            </label>
+            <input
+              type="range"
+              min="100"
+              max="900"
+              step="100"
+              value={fontWeight}
+              onChange={(e) => setFontWeight(parseInt(e.target.value))}
+              className="w-full h-3 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+            />
+            <div className="flex justify-between text-xs text-gray-500 mt-2">
+              <span>100</span>
+              <span>900</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-green-50 rounded-xl p-5">
+          <label className="block text-sm font-semibold text-gray-700 mb-3">
+            Export Quality (DPI)
+          </label>
+          <div className="flex gap-6">
+            <label className="flex items-center cursor-pointer p-3 rounded-lg hover:bg-green-100 transition-colors">
+              <input
+                type="radio"
+                name="dpi"
+                value="150"
+                checked={dpi === 150}
+                onChange={(e) => setDpi(parseInt(e.target.value))}
+                className="mr-3 w-4 h-4 accent-green-600"
+              />
+              <div>
+                <div className="font-medium text-gray-800">150 DPI</div>
+                <div className="text-xs text-gray-600">Standard quality</div>
+              </div>
+            </label>
+            <label className="flex items-center cursor-pointer p-3 rounded-lg hover:bg-green-100 transition-colors">
+              <input
+                type="radio"
+                name="dpi"
+                value="300"
+                checked={dpi === 300}
+                onChange={(e) => setDpi(parseInt(e.target.value))}
+                className="mr-3 w-4 h-4 accent-green-600"
+              />
+              <div>
+                <div className="font-medium text-gray-800">300 DPI</div>
+                <div className="text-xs text-gray-600">High quality (recommended)</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      
       <button
         onClick={validateAndProcessWords}
-        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-lg hover:shadow-xl transition-all text-lg"
       >
-        Generate Preview
+        ✨ Generate Preview
       </button>
-      
-      <div className="mt-4 mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Font Size: {fontSize}px
-        </label>
-        <input
-          type="range"
-          min="20"
-          max="100"
-          value={fontSize}
-          onChange={(e) => setFontSize(parseInt(e.target.value))}
-          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-        />
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
-          <span>20px</span>
-          <span>100px</span>
-        </div>
-      </div>
-      
-      <div className="mt-4 mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Export Quality (DPI)
-        </label>
-        <div className="flex gap-4">
-          <label className="flex items-center">
-            <input
-              type="radio"
-              name="dpi"
-              value="150"
-              checked={dpi === 150}
-              onChange={(e) => setDpi(parseInt(e.target.value))}
-              className="mr-2"
-            />
-            <span className="text-sm">150 DPI (Standard)</span>
-          </label>
-          <label className="flex items-center">
-            <input
-              type="radio"
-              name="dpi"
-              value="300"
-              checked={dpi === 300}
-              onChange={(e) => setDpi(parseInt(e.target.value))}
-              className="mr-2"
-            />
-            <span className="text-sm">300 DPI (High Quality)</span>
-          </label>
-        </div>
-      </div>
-      
-      <div className="mt-4 text-sm text-gray-600">
-        <p>• Enter any words you want on your flashcards</p>
-        <p>• Upload images for each word (PNG, JPG, GIF supported)</p>
-        <p>• Images will be automatically resized to fit the cards</p>
-        <p>• Adjust font size to fit your content perfectly</p>
-      </div>
     </div>
   );
 };
